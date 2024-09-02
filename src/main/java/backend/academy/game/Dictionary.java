@@ -1,25 +1,31 @@
 package backend.academy.game;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 /**
  * <a href="https://englishinn.ru/izuchenie-angliyskogo-yazyika-po-temam/">Resource with english words by categories.</a>
  */
 final public class Dictionary {
+    private final SecureRandom secureRandom;
     private final Map<Level, SimpleDictionary> level2simpleDictionary;
 
-    private Dictionary(Map<Level, SimpleDictionary> level2simpleDictionary) {
+    private Dictionary(SecureRandom secureRandom, Map<Level, SimpleDictionary> level2simpleDictionary) {
+        this.secureRandom = secureRandom;
         this.level2simpleDictionary = level2simpleDictionary;
     }
 
     public static Dictionary getInstance() {
+        SecureRandom secureRandom = new SecureRandom();
+
         Map<Level, SimpleDictionary> level2simpleDictionary = new HashMap<>();
         fill(level2simpleDictionary);
-        return new Dictionary(level2simpleDictionary);
+
+        return new Dictionary(secureRandom, level2simpleDictionary);
     }
 
     private static void fill(Map<Level, SimpleDictionary> level2simpleDictionary) {
@@ -28,15 +34,36 @@ final public class Dictionary {
         putHard(level2simpleDictionary);
     }
 
+    @SuppressFBWarnings({"MultipleStringLiterals"})
     private static void putEasy(Map<Level, SimpleDictionary> map) {
         Map<String, List<String>> category2words = new HashMap<>();
         category2words.put(
-            "Weather",
-            List.of("weather", "fine", "terrible", "cold", "hot", "warm", "rain", "wind", "cloud", "snow")
+            "weather",
+            List.of(
+                "fine",
+                "terrible",
+                "cold",
+                "hot",
+                "warm",
+                "rain",
+                "wind",
+                "cloud",
+                "snow"
+            )
         );
         category2words.put(
-            "Appearance",
-            List.of("appearance", "lips", "teeth", "ears", "forehead", "neck", "body", "arms", "hands", "knees")
+            "appearance",
+            List.of(
+                "lips",
+                "teeth",
+                "ears",
+                "forehead",
+                "neck",
+                "body",
+                "arms",
+                "hands",
+                "knees"
+            )
         );
         map.put(Level.EASY, new SimpleDictionary(category2words));
     }
@@ -44,11 +71,22 @@ final public class Dictionary {
     private static void putMedium(Map<Level, SimpleDictionary> map) {
         Map<String, List<String>> category2words = new HashMap<>();
         category2words.put(
-            "Food",
-            List.of("omelette", "sausages", "boil", "fry", "cocoa", "letice", "wine", "dessert", "cream", "buckwheat")
+            "food",
+            List.of(
+                "omelette",
+                "sausages",
+                "boil",
+                "fry",
+                "cocoa",
+                "letice",
+                "wine",
+                "dessert",
+                "cream",
+                "buckwheat"
+            )
         );
         category2words.put(
-            "Character",
+            "character",
             List.of(
                 "understanding",
                 "obedient",
@@ -68,7 +106,7 @@ final public class Dictionary {
     private static void putHard(Map<Level, SimpleDictionary> map) {
         Map<String, List<String>> category2words = new HashMap<>();
         category2words.put(
-            "Culture",
+            "culture",
             List.of(
                 "affect",
                 "arrange",
@@ -83,7 +121,7 @@ final public class Dictionary {
             )
         );
         category2words.put(
-            "Politics",
+            "politics",
             List.of(
                 "opponent",
                 "opposition",
@@ -100,12 +138,29 @@ final public class Dictionary {
         map.put(Level.HARD, new SimpleDictionary(category2words));
     }
 
+    public String getRandomCategoryByLevel(Level level) {
+        Set<String> categories = getCategoriesByLevel(level);
+
+        int index = secureRandom.nextInt(categories.size());
+
+        int i = 0;
+        for (String category : categories) {
+            if (i == index) {
+                return category;
+            } else {
+                i++;
+            }
+        }
+
+        return "";
+    }
+
     public Set<String> getCategoriesByLevel(Level level) {
         return level2simpleDictionary.get(level).getCategories();
     }
 
-    public String getWord(Random random, Level level, String category) {
-        return level2simpleDictionary.get(level).getWord(random, category);
+    public String getWord(Level level, String category) {
+        return level2simpleDictionary.get(level).getWord(secureRandom, category);
     }
 
     private record SimpleDictionary(Map<String, List<String>> category2words) {
@@ -113,9 +168,9 @@ final public class Dictionary {
             return category2words.keySet();
         }
 
-        public String getWord(Random random, String category) {
+        public String getWord(SecureRandom secureRandom, String category) {
             List<String> words = category2words.get(category);
-            int randomIndex = random.nextInt(words.size());
+            int randomIndex = secureRandom.nextInt(words.size());
             return words.get(randomIndex);
         }
     }

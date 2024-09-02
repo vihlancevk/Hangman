@@ -1,15 +1,19 @@
 package backend.academy.game.user;
 
+import backend.academy.game.Dictionary;
 import backend.academy.game.Level;
-import java.util.Random;
-import java.util.Set;
+import backend.academy.game.Session;
 
 public interface UserInteraction {
     void start();
 
     Level chooseLevel();
 
-    String chooseCategory(Random random, Set<String> categories);
+    String chooseCategory(Level level, Dictionary dictionary);
+
+    void run(Session session);
 
     void finish();
+
+    int getNumberOfAttempts();
 }
