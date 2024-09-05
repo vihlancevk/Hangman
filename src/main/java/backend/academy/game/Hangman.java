@@ -2,6 +2,8 @@ package backend.academy.game;
 
 import backend.academy.game.dictionary.Dictionary;
 import backend.academy.game.dictionary.LevelBasedDictionary;
+import backend.academy.game.session.Session;
+import backend.academy.game.session.SimpleWordSession;
 import backend.academy.game.user.UserInteraction;
 
 public final class Hangman {
@@ -23,12 +25,14 @@ public final class Hangman {
 
         int numberOfAttempts = userInteraction.getNumberOfAttempts();
         String word = userInteraction.getWord(dictionary);
-        Session session = Session.getInstance(numberOfAttempts, word);
+        Session session = SimpleWordSession.getInstance(numberOfAttempts, word);
 
         return new Hangman(userInteraction, session);
     }
 
     private void run() {
-        userInteraction.run(session);
+        if (session.isCorrectSession()) {
+            userInteraction.run(session);
+        }
     }
 }

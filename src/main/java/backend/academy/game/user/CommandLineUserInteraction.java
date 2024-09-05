@@ -1,9 +1,9 @@
 package backend.academy.game.user;
 
 import backend.academy.game.Level;
-import backend.academy.game.Session;
 import backend.academy.game.SessionState;
 import backend.academy.game.dictionary.Dictionary;
+import backend.academy.game.session.Session;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -99,6 +99,10 @@ public final class CommandLineUserInteraction implements UserInteraction {
             .toList();
     }
 
+    private String nextLineInLowerCase() {
+        return nextLine().toLowerCase();
+    }
+
     private <T> String createNumberedMessage(String info, Iterable<T> iterable) {
         StringBuilder message = new StringBuilder();
         message.append(info);
@@ -122,56 +126,55 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
     @Override
     public void run(Session session) {
-        while (session.isContinue()) {
-            draw(session);
-            addSymbol(session);
+        SessionState sessionState = session.getSessionState();
+        while (!sessionState.isFinished()) {
+            draw(sessionState);
+            sessionState = updateState(session);
         }
-        stop(session);
+        stop(sessionState);
     }
 
-    private void draw(Session session) {
-        SessionState sessionState = session.getSessionState();
-
-        println("Number of attempts: " + NUMBER_OF_ATTEMPTS + ".");
-        println("Number of used attempts: " + (sessionState.numberOfUsedAttempts()) + ".");
+    private void draw(SessionState sessionState) {
+        println("Number of attempts: " + sessionState.numberOfAttempts() + ".");
+        println("Number of used attempts: " + sessionState.numberOfUsedAttempts() + ".");
 
         println(states[sessionState.numberOfUsedAttempts()]);
 
+        println(sessionState.info());
         println(sessionState.curWord());
         colorPrintln(sessionState.incorrectSymbols(), AnsiColor.RED);
     }
 
-    private void addSymbol(Session session) {
+    private SessionState updateState(Session session) {
         char symbol = inputSymbol();
-        session.addSymbol(symbol);
+        return session.updateState(symbol);
     }
 
     private char inputSymbol() {
         print("Input symbol: ");
 
-        String symbol = nextLineInLowerCase();
+        String symbol = nextLine();
         while (symbol.length() != 1 || !Character.isLetter(symbol.charAt(0))) {
             print("You input incorrect symbol. Please, try again: ");
-            symbol = nextLineInLowerCase();
+            symbol = nextLine();
         }
 
         return symbol.charAt(0);
     }
 
-    private void stop(Session session) {
-        draw(session);
+    private String nextLine() {
+        return scanner.nextLine();
+    }
 
-        SessionState sessionState = session.getSessionState();
-        if (session.isSuccessfulFinished()) {
+    private void stop(SessionState sessionState) {
+        draw(sessionState);
+
+        if (sessionState.isGuessed()) {
             colorPrintln("Victory!", AnsiColor.GREEN);
         } else {
             println("Target word: " + sessionState.word());
             colorPrintln("Defeat!", AnsiColor.RED);
         }
-    }
-
-    private String nextLineInLowerCase() {
-        return scanner.nextLine().toLowerCase();
     }
 
     private void println(String string) {

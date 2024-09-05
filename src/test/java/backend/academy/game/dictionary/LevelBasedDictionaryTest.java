@@ -1,6 +1,6 @@
-package backend.academy.game;
+package backend.academy.game.dictionary;
 
-import backend.academy.game.dictionary.LevelBasedDictionary;
+import backend.academy.game.Level;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;

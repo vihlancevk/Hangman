@@ -1,7 +1,7 @@
 package backend.academy.game.user;
 
-import backend.academy.game.Session;
 import backend.academy.game.dictionary.Dictionary;
+import backend.academy.game.session.Session;
 
 public interface UserInteraction {
     int getNumberOfAttempts();
