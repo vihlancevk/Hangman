@@ -1,17 +1,18 @@
 package backend.academy.game.user;
 
-import backend.academy.game.Dictionary;
 import backend.academy.game.Level;
 import backend.academy.game.Session;
 import backend.academy.game.SessionState;
+import backend.academy.game.dictionary.Dictionary;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
 
-final public class CommandLineUserInteraction implements UserInteraction {
+public final class CommandLineUserInteraction implements UserInteraction {
     private static final int NUMBER_OF_ATTEMPTS = 6;
     private final String[] states = new String[] {
         "  -----\n  |   |\n  |\n  |\n  |\n  |\n  |\n  |\n ---",
@@ -36,68 +37,58 @@ final public class CommandLineUserInteraction implements UserInteraction {
     }
 
     @Override
-    public void start() {
-        String greetingMessage = "Hello, let's start play on Hangman.";
-        println(greetingMessage);
+    public int getNumberOfAttempts() {
+        return NUMBER_OF_ATTEMPTS;
     }
 
     @Override
-    public Level chooseLevel() {
-        StringBuilder message = new StringBuilder();
-        message.append("Choose level of game:\n");
-        for (Level level : Level.values()) {
-            message
-                .append(level.getName())
-                .append(' ')
-                .append('(').append(level.getShortName()).append(')')
-                .append('\n');
-        }
-        print(message.toString());
+    public String getWord(Dictionary dictionary) {
+        Level level = chooseLevel(dictionary);
+        String category = chooseCategory(level, dictionary);
+        return getWord(level, category, dictionary);
+    }
 
-        String level = nextLineInLowerCase();
-        switch (level) {
-            case "easy", "e" -> {
-                println("You choose easy level.");
-                return Level.EASY;
-            }
-            case "medium", "m" -> {
-                println("You choose medium level.");
-                return Level.MEDIUM;
-            }
-            case "hard", "h" -> {
-                println("You choose hard level.");
-                return Level.HARD;
-            }
-            default -> {
-                println("Incorrect input. The default game level is medium.");
-                return Level.MEDIUM;
-            }
+    private Level chooseLevel(Dictionary dictionary) {
+        Set<Level> levels = dictionary.getLevels();
+
+        String message = createNumberedMessage("Choose level of game:\n", levels);
+        print(message);
+
+        String chosenLevel = scanner.nextLine();
+        Optional<Level> optionalLevel = levels.stream()
+            .filter(level -> level.compareToWithIgnoringCase(chosenLevel))
+            .findFirst();
+
+        if (optionalLevel.isPresent()) {
+            Level level = optionalLevel.orElseThrow();
+            println("You choose " + level + " level.");
+            return level;
+        } else {
+            reportWarning();
+            Level level = dictionary.getDefaultLevel();
+            println("The default game level is used: " + level + ".");
+            return level;
         }
     }
 
-    @Override
-    public String chooseCategory(Level level, Dictionary dictionary) {
+    private String chooseCategory(Level level, Dictionary dictionary) {
         List<String> categories = handleCategories(dictionary.getCategoriesByLevel(level));
 
-        StringBuilder message = new StringBuilder();
-        message.append("Choose category of words:\n");
-        int i = 1;
-        for (String category : categories) {
-            message
-                .append(i++).append(". ")
-                .append(category).append('\n');
-        }
-        print(message.toString());
+        String message = createNumberedMessage("Choose category of words:\n", categories);
+        print(message);
 
         String category = nextLineInLowerCase();
         if (categories.contains(category)) {
             println("You choose category: " + category + ".");
             return category;
         } else {
-            println("Incorrect input.");
-            String randomCategory = dictionary.getRandomCategoryByLevel(level);
-            println("Randomly selected category: " + randomCategory + ".");
-            return randomCategory;
+            reportWarning();
+            Optional<String> optionalCategory = dictionary.getCategoryByLevel(level);
+            String chosenCategory = optionalCategory.isPresent()
+                ? optionalCategory.orElseThrow()
+                : dictionary.getDefaultCategory();
+            println("We choose category for you: " + chosenCategory + ".");
+            return chosenCategory;
         }
     }
 
@@ -106,6 +97,27 @@ final public class CommandLineUserInteraction implements UserInteraction {
             .sorted()
             .map(String::toLowerCase)
             .toList();
+    }
+
+    private <T> String createNumberedMessage(String info, Iterable<T> iterable) {
+        StringBuilder message = new StringBuilder();
+        message.append(info);
+        int i = 1;
+        for (T t : iterable) {
+            message
+                .append(i++).append(". ")
+                .append(t).append('\n');
+        }
+        return message.toString();
+    }
+
+    private void reportWarning() {
+        println("Incorrect input.");
+    }
+
+    private String getWord(Level level, String category, Dictionary dictionary) {
+        Optional<String> optionalWord = dictionary.getWord(level, category);
+        return optionalWord.isPresent() ? optionalWord.orElseThrow() : dictionary.getDefaultWord();
     }
 
     @Override
@@ -150,23 +162,12 @@ final public class CommandLineUserInteraction implements UserInteraction {
         draw(session);
 
         SessionState sessionState = session.getSessionState();
-        if (session.isGuessed()) {
+        if (session.isSuccessfulFinished()) {
             colorPrintln("Victory!", AnsiColor.GREEN);
         } else {
             println("Target word: " + sessionState.word());
             colorPrintln("Defeat!", AnsiColor.RED);
         }
-    }
-
-    @Override
-    public void finish() {
-        String closingMessage = "Thank you for play. We hope you had a good time!";
-        println(closingMessage);
-    }
-
-    @Override
-    public int getNumberOfAttempts() {
-        return NUMBER_OF_ATTEMPTS;
     }
 
     private String nextLineInLowerCase() {

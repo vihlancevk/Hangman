@@ -1,23 +1,16 @@
 package backend.academy.game;
 
 public enum Level {
-    EASY("easy", "e"),
-    MEDIUM("medium", "m"),
-    HARD("hard", "h");
+    EASY,
+    MEDIUM,
+    HARD;
 
-    private final String name;
-    private final String shortName;
-
-    Level(String name, String shortName) {
-        this.name = name;
-        this.shortName = shortName;
+    public boolean compareToWithIgnoringCase(String level) {
+        return name().equalsIgnoreCase(level);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getShortName() {
-        return shortName;
+    @Override
+    public String toString() {
+        return name().toLowerCase();
     }
 }

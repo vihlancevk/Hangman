@@ -1,19 +1,12 @@
 package backend.academy.game.user;
 
-import backend.academy.game.Dictionary;
-import backend.academy.game.Level;
 import backend.academy.game.Session;
+import backend.academy.game.dictionary.Dictionary;
 
 public interface UserInteraction {
-    void start();
+    int getNumberOfAttempts();
 
-    Level chooseLevel();
-
-    String chooseCategory(Level level, Dictionary dictionary);
+    String getWord(Dictionary dictionary);
 
     void run(Session session);
-
-    void finish();
-
-    int getNumberOfAttempts();
 }

@@ -5,21 +5,33 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class Session {
-    private char[] word;
-    private char[] curWord;
-    private final Set<Character> correctSymbols;
-    private final Set<Character> incorrectSymbols;
+@SuppressFBWarnings({"PL_PARALLEL_LISTS"})
+public final class Session {
     private final int numberOfAttempts;
     private int numberOfUsedAttempts;
 
-    public Session(int numberOfAttempts) {
-        this.word = new char[0];
-        this.curWord = new char[0];
-        this.correctSymbols = new TreeSet<>();
-        this.incorrectSymbols = new TreeSet<>();
+    private final char[] word;
+    private final char[] curWord;
+
+    private final Set<Character> correctSymbols;
+    private final Set<Character> incorrectSymbols;
+
+    private Session(int numberOfAttempts, char[] word, char[] curWord) {
         this.numberOfAttempts = numberOfAttempts;
         this.numberOfUsedAttempts = 0;
+        this.word = word;
+        this.curWord = curWord;
+        this.correctSymbols = new TreeSet<>();
+        this.incorrectSymbols = new TreeSet<>();
+    }
+
+    public static Session getInstance(int numberOfAttempts, String word) {
+        char[] wordAsSymbols = toUpperCase(word).toCharArray();
+
+        char[] curWordAsSymbols = new char[word.length()];
+        Arrays.fill(curWordAsSymbols, '_');
+
+        return new Session(numberOfAttempts, wordAsSymbols, curWordAsSymbols);
     }
 
     public SessionState getSessionState() {
@@ -46,28 +58,11 @@ public class Session {
         return sb.toString();
     }
 
-    public void fillSession(String word) {
-        this.word = toUpperCase(word).toCharArray();
-        this.curWord = new char[word.length()];
-        Arrays.fill(curWord, '_');
-    }
-
-    private String toUpperCase(String string) {
-        return string.toUpperCase();
-    }
-
-    public void clearSession() {
-        this.word = new char[0];
-        this.curWord = new char[0];
-        this.numberOfUsedAttempts = 0;
-    }
-
     public boolean isContinue() {
-        return !isGuessed() && numberOfUsedAttempts < numberOfAttempts;
+        return !isSuccessfulFinished() && numberOfUsedAttempts < numberOfAttempts;
     }
 
-    @SuppressFBWarnings({"PL_PARALLEL_LISTS"})
-    public boolean isGuessed() {
+    public boolean isSuccessfulFinished() {
         int n = word.length;
         for (int i = 0; i < n; i++) {
             if (word[i] != curWord[i]) {
@@ -108,7 +103,11 @@ public class Session {
         return isCorrectSymbol;
     }
 
-    private char toUpperCase(char symbol) {
+    private static String toUpperCase(String string) {
+        return string.toUpperCase();
+    }
+
+    private static char toUpperCase(char symbol) {
         return Character.toUpperCase(symbol);
     }
 }

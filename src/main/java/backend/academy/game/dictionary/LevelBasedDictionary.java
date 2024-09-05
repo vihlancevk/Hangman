@@ -1,31 +1,38 @@
-package backend.academy.game;
+package backend.academy.game.dictionary;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import backend.academy.game.Level;
 import java.security.SecureRandom;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * <a href="https://englishinn.ru/izuchenie-angliyskogo-yazyika-po-temam/">Resource with english words by categories.</a>
+ * <ul>
+ *     <li>Beginner</li>
+ *     <li>Intermediate</li>
+ *     <li>Advanced</li>
+ * </ul>
+ * <a href="https://langeek.co/en/vocab/level-based">Resource with english words by categories.</a>
  */
-final public class Dictionary {
+public final class LevelBasedDictionary implements Dictionary {
     private final SecureRandom secureRandom;
     private final Map<Level, SimpleDictionary> level2simpleDictionary;
 
-    private Dictionary(SecureRandom secureRandom, Map<Level, SimpleDictionary> level2simpleDictionary) {
+    private LevelBasedDictionary(SecureRandom secureRandom, Map<Level, SimpleDictionary> level2simpleDictionary) {
         this.secureRandom = secureRandom;
         this.level2simpleDictionary = level2simpleDictionary;
     }
 
-    public static Dictionary getInstance() {
+    public static LevelBasedDictionary getInstance() {
         SecureRandom secureRandom = new SecureRandom();
 
         Map<Level, SimpleDictionary> level2simpleDictionary = new HashMap<>();
         fill(level2simpleDictionary);
 
-        return new Dictionary(secureRandom, level2simpleDictionary);
+        return new LevelBasedDictionary(secureRandom, level2simpleDictionary);
     }
 
     private static void fill(Map<Level, SimpleDictionary> level2simpleDictionary) {
@@ -34,7 +41,6 @@ final public class Dictionary {
         putHard(level2simpleDictionary);
     }
 
-    @SuppressFBWarnings({"MultipleStringLiterals"})
     private static void putEasy(Map<Level, SimpleDictionary> map) {
         Map<String, List<String>> category2words = new HashMap<>();
         category2words.put(
@@ -138,29 +144,65 @@ final public class Dictionary {
         map.put(Level.HARD, new SimpleDictionary(category2words));
     }
 
-    public String getRandomCategoryByLevel(Level level) {
+    @Override
+    public Set<Level> getLevels() {
+        return level2simpleDictionary.keySet();
+    }
+
+    @Override
+    public Level getDefaultLevel() {
+        return Level.MEDIUM;
+    }
+
+    @Override
+    public Set<String> getCategoriesByLevel(Level level) {
+        SimpleDictionary simpleDictionary = level2simpleDictionary.get(level);
+        if (simpleDictionary == null) {
+            return Collections.emptySet();
+        } else {
+            return simpleDictionary.getCategories();
+        }
+    }
+
+    @Override
+    public Optional<String> getCategoryByLevel(Level level) {
         Set<String> categories = getCategoriesByLevel(level);
+        if (categories.isEmpty()) {
+            return Optional.empty();
+        }
 
         int index = secureRandom.nextInt(categories.size());
 
         int i = 0;
         for (String category : categories) {
             if (i == index) {
-                return category;
+                return Optional.of(category);
             } else {
                 i++;
             }
         }
 
-        return "";
+        return Optional.empty();
     }
 
-    public Set<String> getCategoriesByLevel(Level level) {
-        return level2simpleDictionary.get(level).getCategories();
+    @Override
+    public String getDefaultCategory() {
+        return getCategoryByLevel(getDefaultLevel()).orElseThrow();
     }
 
-    public String getWord(Level level, String category) {
-        return level2simpleDictionary.get(level).getWord(secureRandom, category);
+    @Override
+    public Optional<String> getWord(Level level, String category) {
+        SimpleDictionary simpleDictionary = level2simpleDictionary.get(level);
+        if (simpleDictionary == null) {
+            return Optional.empty();
+        }
+
+        return simpleDictionary.getWord(secureRandom, category);
+    }
+
+    @Override
+    public String getDefaultWord() {
+        return getWord(getDefaultLevel(), getDefaultCategory()).orElseThrow();
     }
 
     private record SimpleDictionary(Map<String, List<String>> category2words) {
@@ -168,10 +210,14 @@ final public class Dictionary {
             return category2words.keySet();
         }
 
-        public String getWord(SecureRandom secureRandom, String category) {
+        public Optional<String> getWord(SecureRandom secureRandom, String category) {
             List<String> words = category2words.get(category);
+            if (words == null || words.isEmpty()) {
+                return Optional.empty();
+            }
+
             int randomIndex = secureRandom.nextInt(words.size());
-            return words.get(randomIndex);
+            return Optional.of(words.get(randomIndex));
         }
     }
 }

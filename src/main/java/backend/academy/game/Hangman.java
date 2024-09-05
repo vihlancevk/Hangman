@@ -1,59 +1,34 @@
 package backend.academy.game;
 
+import backend.academy.game.dictionary.Dictionary;
+import backend.academy.game.dictionary.LevelBasedDictionary;
 import backend.academy.game.user.UserInteraction;
 
-final public class Hangman {
-    private final Dictionary dictionary;
+public final class Hangman {
     private final UserInteraction userInteraction;
     private final Session session;
 
-    private Hangman(UserInteraction userInteraction) {
-        this.dictionary = Dictionary.getInstance();
+    private Hangman(UserInteraction userInteraction, Session session) {
         this.userInteraction = userInteraction;
-        this.session = new Session(userInteraction.getNumberOfAttempts());
+        this.session = session;
     }
 
-    public static void run(UserInteraction userInteraction) {
-        Hangman hangman = new Hangman(userInteraction);
-        hangman.startGame();
-        hangman.fillGameSession();
-        hangman.runGameSession();
-        hangman.clearGameSession();
-        hangman.finishGame();
+    public static void create(UserInteraction userInteraction) {
+        Hangman hangman = Hangman.getInstance(userInteraction);
+        hangman.run();
     }
 
-    private void startGame() {
-        userInteraction.start();
+    private static Hangman getInstance(UserInteraction userInteraction) {
+        Dictionary dictionary = LevelBasedDictionary.getInstance();
+
+        int numberOfAttempts = userInteraction.getNumberOfAttempts();
+        String word = userInteraction.getWord(dictionary);
+        Session session = Session.getInstance(numberOfAttempts, word);
+
+        return new Hangman(userInteraction, session);
     }
 
-    private void fillGameSession() {
-        Level level = chooseLevelOfGame();
-        String category = chooseCategoryOfWords(level);
-        String word = getWord(level, category);
-        session.fillSession(word);
-    }
-
-    private Level chooseLevelOfGame() {
-        return userInteraction.chooseLevel();
-    }
-
-    private String chooseCategoryOfWords(Level level) {
-        return userInteraction.chooseCategory(level, dictionary);
-    }
-
-    private String getWord(Level level, String category) {
-        return dictionary.getWord(level, category);
-    }
-
-    private void runGameSession() {
+    private void run() {
         userInteraction.run(session);
-    }
-
-    private void clearGameSession() {
-        session.clearSession();
-    }
-
-    private void finishGame() {
-        userInteraction.finish();
     }
 }
