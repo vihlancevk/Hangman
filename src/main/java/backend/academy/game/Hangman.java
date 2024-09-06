@@ -31,8 +31,6 @@ public final class Hangman {
     }
 
     private void run() {
-        if (session.isCorrectSession()) {
-            userInteraction.run(session);
-        }
+        userInteraction.run(session);
     }
 }

@@ -76,14 +76,18 @@ public final class SimpleWordSession implements Session {
 
     @Override
     public SessionState updateState(char symbol) {
-        if (isCorrectSession) {
-            return updateStateIfCorrectSession(symbol);
+        if (canUpdate()) {
+            return updateStateIfCan(symbol);
         }
 
         return getSessionState();
     }
 
-    private SessionState updateStateIfCorrectSession(char symbol) {
+    private boolean canUpdate() {
+        return isCorrectSession && getSessionState().hasAttempts();
+    }
+
+    private SessionState updateStateIfCan(char symbol) {
         char upperCaseSymbol = toUpperCase(symbol);
 
         if (correctSymbols.contains(upperCaseSymbol)) {

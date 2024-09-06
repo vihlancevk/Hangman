@@ -14,7 +14,7 @@ public record SessionState(int numberOfAttempts,
         return hasAttempts() && word.equalsIgnoreCase(curWord);
     }
 
-    private boolean hasAttempts() {
+    public boolean hasAttempts() {
         return numberOfUsedAttempts < numberOfAttempts;
     }
 }

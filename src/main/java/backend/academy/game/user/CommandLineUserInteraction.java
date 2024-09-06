@@ -32,7 +32,7 @@ public final class CommandLineUserInteraction implements UserInteraction {
         scanner = new Scanner(System.in, StandardCharsets.UTF_8);
     }
 
-    public static UserInteraction getInstance() {
+    public static CommandLineUserInteraction getInstance() {
         return new CommandLineUserInteraction();
     }
 
@@ -126,12 +126,26 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
     @Override
     public void run(Session session) {
+        if (!isCorrectSession(session)) {
+            colorPrintln("Incorrect session state.", AnsiColor.RED);
+            return;
+        }
+
         SessionState sessionState = session.getSessionState();
         while (!sessionState.isFinished()) {
             draw(sessionState);
             sessionState = updateState(session);
         }
         stop(sessionState);
+    }
+
+    private boolean isCorrectSession(Session session) {
+        if (!session.isCorrectSession()) {
+            return false;
+        }
+
+        SessionState state = session.getSessionState();
+        return getNumberOfAttempts() == state.numberOfAttempts();
     }
 
     private void draw(SessionState sessionState) {

@@ -316,11 +316,11 @@ public class SimpleWordSessionTest {
 
         SessionState expected = new SessionState(
             5,
-            6,
+            5,
             "WORD",
-            "The symbol is entered incorrectly.",
+            "",
             "___D",
-            "ABCEGH"
+            "ABCEG"
         );
         checkSessionState(actual, expected, true, false);
     }
@@ -344,11 +344,11 @@ public class SimpleWordSessionTest {
 
         SessionState expected = new SessionState(
             5,
-            6,
+            5,
             "WORD",
-            "This character has already been entered correctly.",
-            "WORD",
-            "ABCEGH"
+            "",
+            "___D",
+            "ABCEG"
         );
         checkSessionState(actual, expected, true, false);
     }
