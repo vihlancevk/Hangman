@@ -1,9 +1,9 @@
 package backend.academy.game.user;
 
 import backend.academy.game.Level;
-import backend.academy.game.SessionState;
 import backend.academy.game.dictionary.Dictionary;
 import backend.academy.game.session.Session;
+import backend.academy.game.session.SessionState;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -13,17 +13,6 @@ import java.util.Scanner;
 import java.util.Set;
 
 public final class CommandLineUserInteraction implements UserInteraction {
-    private static final int NUMBER_OF_ATTEMPTS = 6;
-    private final String[] states = new String[] {
-        "  -----\n  |   |\n  |\n  |\n  |\n  |\n  |\n  |\n ---",
-        "  -----\n  |   |\n  |   0\n  |\n  |\n  |\n  |\n  |\n ---",
-        "  -----\n  |   |\n  |   0\n  |   |\n  |   |\n  |\n  |\n  |\n ---",
-        "  -----\n  |   |\n  |   0\n  |  -|\n  |   |\n  |\n  |\n  |\n ---",
-        "  -----\n  |   |\n  |   0\n  |  -|-\n  |   |\n  |\n  |\n  |\n ---",
-        "  -----\n  |   |\n  |   0\n  |  -|-\n  |   |\n  |  /\n  |\n  |\n ---",
-        "  -----\n  |   |\n  |   0\n  |  -|-\n  |   |\n  |  / \\\n  |\n  |\n ---"
-    };
-
     private final PrintStream out;
     private final Scanner scanner;
 
@@ -34,11 +23,6 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
     public static CommandLineUserInteraction getInstance() {
         return new CommandLineUserInteraction();
-    }
-
-    @Override
-    public int getNumberOfAttempts() {
-        return NUMBER_OF_ATTEMPTS;
     }
 
     @Override
@@ -126,69 +110,30 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
     @Override
     public void run(Session session) {
-        if (!isCorrectSession(session)) {
-            colorPrintln("Incorrect session state.", AnsiColor.RED);
-            return;
-        }
-
         SessionState sessionState = session.getSessionState();
         while (!sessionState.isFinished()) {
-            draw(sessionState);
+            display(sessionState);
             sessionState = updateState(session);
         }
-        stop(sessionState);
+        display(sessionState);
     }
 
-    private boolean isCorrectSession(Session session) {
-        if (!session.isCorrectSession()) {
-            return false;
-        }
-
-        SessionState state = session.getSessionState();
-        return getNumberOfAttempts() == state.numberOfAttempts();
-    }
-
-    private void draw(SessionState sessionState) {
-        println("Number of attempts: " + sessionState.numberOfAttempts() + ".");
-        println("Number of used attempts: " + sessionState.numberOfUsedAttempts() + ".");
-
-        println(states[sessionState.numberOfUsedAttempts()]);
-
-        println(sessionState.info());
-        println(sessionState.curWord());
-        colorPrintln(sessionState.incorrectSymbols(), AnsiColor.RED);
+    private void display(SessionState sessionState) {
+        println(sessionState.message());
     }
 
     private SessionState updateState(Session session) {
-        char symbol = inputSymbol();
+        String symbol = inputSymbol();
         return session.updateState(symbol);
     }
 
-    private char inputSymbol() {
+    private String inputSymbol() {
         print("Input symbol: ");
-
-        String symbol = nextLine();
-        while (symbol.length() != 1 || !Character.isLetter(symbol.charAt(0))) {
-            print("You input incorrect symbol. Please, try again: ");
-            symbol = nextLine();
-        }
-
-        return symbol.charAt(0);
+        return nextLine();
     }
 
     private String nextLine() {
         return scanner.nextLine();
-    }
-
-    private void stop(SessionState sessionState) {
-        draw(sessionState);
-
-        if (sessionState.isGuessed()) {
-            colorPrintln("Victory!", AnsiColor.GREEN);
-        } else {
-            println("Target word: " + sessionState.word());
-            colorPrintln("Defeat!", AnsiColor.RED);
-        }
     }
 
     private void println(String string) {
@@ -197,29 +142,5 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
     private void print(String string) {
         out.print(string);
-    }
-
-    private void colorPrintln(String string, AnsiColor color) {
-        colorPrint(string + "\n", color);
-    }
-
-    private void colorPrint(String string, AnsiColor color) {
-        String ansiReset = "\033[0m";
-        out.print(color.getCode() + string + ansiReset);
-    }
-
-    private enum AnsiColor {
-        RED("\033[0;31m"),
-        GREEN("\033[0;32m");
-
-        private final String code;
-
-        AnsiColor(String code) {
-            this.code = code;
-        }
-
-        public String getCode() {
-            return code;
-        }
     }
 }
