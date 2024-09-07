@@ -15,7 +15,7 @@ public interface Dictionary {
 
     String getDefaultCategory();
 
-    Optional<String> getWord(Level level, String category);
+    Optional<DictionaryWord> getDictionaryWord(Level level, String category);
 
-    String getDefaultWord();
+    DictionaryWord getDefaultDictionaryWord();
 }

@@ -1,7 +1,8 @@
 package backend.academy.game;
 
 import backend.academy.game.dictionary.Dictionary;
-import backend.academy.game.dictionary.LevelBasedDictionary;
+import backend.academy.game.dictionary.DictionaryWord;
+import backend.academy.game.dictionary.impl.LevelBasedDictionary;
 import backend.academy.game.session.Session;
 import backend.academy.game.session.impl.SimpleWordSession;
 import backend.academy.game.user.UserInteraction;
@@ -23,8 +24,8 @@ public final class Hangman {
     private static Hangman getInstance(UserInteraction userInteraction) {
         Dictionary dictionary = LevelBasedDictionary.getInstance();
 
-        String word = userInteraction.getWord(dictionary);
-        Session session = SimpleWordSession.getInstance(word);
+        DictionaryWord dictionaryWord = userInteraction.getDictionaryWord(dictionary);
+        Session session = SimpleWordSession.getInstance(dictionaryWord);
 
         return new Hangman(userInteraction, session);
     }

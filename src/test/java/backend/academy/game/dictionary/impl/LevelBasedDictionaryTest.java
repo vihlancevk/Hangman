@@ -1,6 +1,7 @@
-package backend.academy.game.dictionary;
+package backend.academy.game.dictionary.impl;
 
 import backend.academy.game.Level;
+import backend.academy.game.dictionary.DictionaryWord;
 import org.junit.jupiter.api.Test;
 import java.util.List;
 import java.util.Optional;
@@ -89,32 +90,32 @@ public class LevelBasedDictionaryTest {
 
     @Test
     public void getWordByBadLevel() {
-        Optional<String> word = levelBasedDictionary.getWord(null, null);
+        Optional<DictionaryWord> dictionaryWord = levelBasedDictionary.getDictionaryWord(null, null);
 
-        assertThat(word).isEmpty();
+        assertThat(dictionaryWord).isEmpty();
     }
 
     @Test
     public void getWordByGoodLevelAndBadCategory() {
         Level level = levelBasedDictionary.getDefaultLevel();
-        Optional<String> word = levelBasedDictionary.getWord(level, null);
+        Optional<DictionaryWord> dictionaryWord = levelBasedDictionary.getDictionaryWord(level, null);
 
-        assertThat(word).isEmpty();
+        assertThat(dictionaryWord).isEmpty();
     }
 
     @Test
     public void getWordByGoodLevelAndGoodCategory() {
         Level level = levelBasedDictionary.getDefaultLevel();
         Optional<String> category = levelBasedDictionary.getCategoryByLevel(level);
-        Optional<String> word = levelBasedDictionary.getWord(level, category.orElseThrow());
+        Optional<DictionaryWord> dictionaryWord = levelBasedDictionary.getDictionaryWord(level, category.orElseThrow());
 
-        assertThat(word).isPresent();
+        assertThat(dictionaryWord).isPresent();
     }
 
     @Test
-    public void getDefaultWord() {
-        String defaultWord = levelBasedDictionary.getDefaultWord();
+    public void getDefaultDictionaryWord() {
+        DictionaryWord defaultDictionaryWord = levelBasedDictionary.getDefaultDictionaryWord();
 
-        assertThat(defaultWord).isNotNull();
+        assertThat(defaultDictionaryWord).isNotNull();
     }
 }

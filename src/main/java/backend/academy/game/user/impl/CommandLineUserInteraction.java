@@ -1,9 +1,11 @@
-package backend.academy.game.user;
+package backend.academy.game.user.impl;
 
 import backend.academy.game.Level;
 import backend.academy.game.dictionary.Dictionary;
+import backend.academy.game.dictionary.DictionaryWord;
 import backend.academy.game.session.Session;
 import backend.academy.game.session.SessionState;
+import backend.academy.game.user.UserInteraction;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.TreeSet;
 
 public final class CommandLineUserInteraction implements UserInteraction {
     private final PrintStream out;
@@ -26,14 +29,14 @@ public final class CommandLineUserInteraction implements UserInteraction {
     }
 
     @Override
-    public String getWord(Dictionary dictionary) {
+    public DictionaryWord getDictionaryWord(Dictionary dictionary) {
         Level level = chooseLevel(dictionary);
         String category = chooseCategory(level, dictionary);
-        return getWord(level, category, dictionary);
+        return getDictionaryWord(level, category, dictionary);
     }
 
     private Level chooseLevel(Dictionary dictionary) {
-        Set<Level> levels = dictionary.getLevels();
+        Set<Level> levels = new TreeSet<>(dictionary.getLevels());
 
         String message = createNumberedMessage("Choose level of game:\n", levels);
         print(message);
@@ -103,9 +106,11 @@ public final class CommandLineUserInteraction implements UserInteraction {
         println("Incorrect input.");
     }
 
-    private String getWord(Level level, String category, Dictionary dictionary) {
-        Optional<String> optionalWord = dictionary.getWord(level, category);
-        return optionalWord.isPresent() ? optionalWord.orElseThrow() : dictionary.getDefaultWord();
+    private DictionaryWord getDictionaryWord(Level level, String category, Dictionary dictionary) {
+        Optional<DictionaryWord> optionalDictionaryWord = dictionary.getDictionaryWord(level, category);
+        return optionalDictionaryWord.isPresent()
+            ? optionalDictionaryWord.orElseThrow()
+            : dictionary.getDefaultDictionaryWord();
     }
 
     @Override

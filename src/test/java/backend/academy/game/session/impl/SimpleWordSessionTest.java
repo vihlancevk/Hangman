@@ -1,5 +1,6 @@
 package backend.academy.game.session.impl;
 
+import backend.academy.game.dictionary.impl.LevelBasedDictionaryWord;
 import backend.academy.game.session.SessionState;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -8,32 +9,38 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class SimpleWordSessionTest {
     @Test
     public void getSessionStateIfIncorrectSession() {
-        SimpleWordSession incorrectSession = SimpleWordSession.getInstance("");
-
-        SessionState actual = incorrectSession.getSessionState();
+        List<SimpleWordSession> incorrectSessions = List.of(
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord(null, null)),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", null)),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord(null, "clue")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("\t\n", ""))
+        );
 
         SessionState expected = new SimpleWordSessionState(true,"Incorrect session!");
-        assertThat(actual).isEqualTo(expected);
+        incorrectSessions.forEach(
+            incorrectSession -> assertThat(incorrectSession.getSessionState()).isEqualTo(expected)
+        );
     }
 
     @Test
     public void getSessionStateIfCorrectSession() {
         List<SimpleWordSession> simpleWordSessions = List.of(
-            SimpleWordSession.getInstance("word"),
-            SimpleWordSession.getInstance("Word"),
-            SimpleWordSession.getInstance("wOrd"),
-            SimpleWordSession.getInstance("woRd"),
-            SimpleWordSession.getInstance("worD"),
-            SimpleWordSession.getInstance("WOrd"),
-            SimpleWordSession.getInstance("WoRd"),
-            SimpleWordSession.getInstance("WorD"),
-            SimpleWordSession.getInstance("wORd"),
-            SimpleWordSession.getInstance("wOrD"),
-            SimpleWordSession.getInstance("woRD"),
-            SimpleWordSession.getInstance("WORd"),
-            SimpleWordSession.getInstance("WOrD"),
-            SimpleWordSession.getInstance("wORD"),
-            SimpleWordSession.getInstance("WORD")
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("Word", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("wOrd", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("woRd", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("worD", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WOrd", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WoRd", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WorD", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("wORd", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("wOrD", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("woRD", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WORd", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WOrD", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("wORD", "")),
+            SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WORD", ""))
         );
 
         List<SessionState> actuals = simpleWordSessions.stream()
@@ -62,7 +69,7 @@ ____
 
     @Test
     public void updateSessionIncorrectInput() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("A");
         simpleWordSession.updateState("D");
@@ -112,7 +119,7 @@ AH"""
 
     @Test
     public void updateStateLowerCaseCorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         SessionState actual = simpleWordSession.updateState("w");
 
@@ -139,7 +146,7 @@ W___
 
     @Test
     public void updateStateUpperCaseCorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         SessionState actual = simpleWordSession.updateState("W");
 
@@ -166,7 +173,7 @@ W___
 
     @Test
     public void updateStateLowerCaseIncorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         SessionState actual = simpleWordSession.updateState("e");
 
@@ -193,7 +200,7 @@ E"""
 
     @Test
     public void updateStateUpperCaseIncorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         SessionState actual = simpleWordSession.updateState("E");
 
@@ -220,7 +227,7 @@ E"""
 
     @Test
     public void updateStateLowerCaseAlreadyCorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         simpleWordSession.updateState("o");
         SessionState actual = simpleWordSession.updateState("o");
@@ -248,7 +255,7 @@ _O__
 
     @Test
     public void updateStateUpperCaseAlreadyCorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         simpleWordSession.updateState("r");
         SessionState actual = simpleWordSession.updateState("R");
@@ -276,7 +283,7 @@ __R_
 
     @Test
     public void updateStateLowerCaseAlreadyIncorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("o");
@@ -307,7 +314,7 @@ AP"""
 
     @Test
     public void updateStateUpperCaseAlreadyIncorrect() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("o");
@@ -338,7 +345,7 @@ AP"""
 
     @Test
     public void updateStateGuessed() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", "World but short."));
 
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("O");
@@ -363,6 +370,7 @@ Number of used attempts: 3.
   |
  ---
 You guess the letter.
+Clue: WORLD BUT SHORT.
 WORD
 APT
 Victory!"""
@@ -372,7 +380,7 @@ Victory!"""
 
     @Test
     public void updateStateFinishedTryingOverLimitDefault() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         simpleWordSession.updateState("a");
         simpleWordSession.updateState("b");
@@ -410,7 +418,7 @@ Defeat!"""
 
     @Test
     public void updateStateFinishedTryingOverLimitVictory() {
-        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance("word");
+        SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
         simpleWordSession.updateState("a");
         simpleWordSession.updateState("b");

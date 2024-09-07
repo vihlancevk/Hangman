@@ -1,12 +1,18 @@
 package backend.academy.game.session;
 
+import backend.academy.game.dictionary.DictionaryWord;
+import backend.academy.game.dictionary.impl.LevelBasedDictionaryWord;
+
 public final class SimpleWordSessionUtils {
     private SimpleWordSessionUtils() {
 
     }
 
-    public static boolean isCorrectWord(String word) {
-        if (word == null) {
+    public static boolean isCorrectWord(DictionaryWord dictionaryWord) {
+        String word = dictionaryWord.word();
+        String clue = dictionaryWord.clue();
+
+        if (word == null || clue == null) {
             return false;
         }
 
@@ -28,8 +34,11 @@ public final class SimpleWordSessionUtils {
         return Character.toUpperCase(symbol);
     }
 
-    public static String toUpperCase(String string) {
-        return string.toUpperCase();
+    public static DictionaryWord toUpperCase(DictionaryWord dictionaryWord) {
+        return new LevelBasedDictionaryWord(
+            dictionaryWord.word().toUpperCase(),
+            dictionaryWord.clue().toUpperCase()
+        );
     }
 
     public static String convert(char[] array) {

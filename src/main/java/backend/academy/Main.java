@@ -1,7 +1,7 @@
 package backend.academy;
 
 import backend.academy.game.Hangman;
-import backend.academy.game.user.CommandLineUserInteraction;
+import backend.academy.game.user.impl.CommandLineUserInteraction;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass

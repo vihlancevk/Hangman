@@ -1,5 +1,7 @@
 package backend.academy.game.session.impl;
 
+import backend.academy.game.dictionary.DictionaryWord;
+import backend.academy.game.dictionary.impl.LevelBasedDictionaryWord;
 import backend.academy.game.session.Session;
 import backend.academy.game.session.SessionState;
 import java.util.Arrays;
@@ -26,7 +28,7 @@ public final class SimpleWordSession implements Session {
     };
     private int numberOfUsedAttempts;
 
-    private final String targetWord;
+    private final DictionaryWord targetWord;
     private final char[] wordAsSymbols;
 
     private final Set<Character> correctSymbols = new TreeSet<>();
@@ -37,23 +39,23 @@ public final class SimpleWordSession implements Session {
         "Incorrect session!"
     );
 
-    private SimpleWordSession(boolean isCorrectSession, String targetWord, char[] wordAsSymbols) {
+    private SimpleWordSession(boolean isCorrectSession, DictionaryWord targetWord, char[] wordAsSymbols) {
         this.isCorrectSession = isCorrectSession;
         this.targetWord = targetWord;
         this.wordAsSymbols = wordAsSymbols;
     }
 
-    public static SimpleWordSession getInstance(String word) {
-        if (!isCorrectWord(word)) {
-            return new SimpleWordSession(false, "", new char[0]);
+    public static SimpleWordSession getInstance(DictionaryWord dictionaryWord) {
+        if (!isCorrectWord(dictionaryWord)) {
+            return new SimpleWordSession(false, new LevelBasedDictionaryWord("", ""), new char[0]);
         }
 
-        String upperCaseWord = toUpperCase(word);
+        DictionaryWord upperCaseDictionaryWord = toUpperCase(dictionaryWord);
 
-        char[] curWord = new char[word.length()];
+        char[] curWord = new char[dictionaryWord.word().length()];
         Arrays.fill(curWord, '_');
 
-        return new SimpleWordSession(true, upperCaseWord, curWord);
+        return new SimpleWordSession(true, upperCaseDictionaryWord, curWord);
     }
 
     @Override
@@ -83,7 +85,7 @@ public final class SimpleWordSession implements Session {
     }
 
     private boolean isGuessed(String word) {
-        return targetWord.equalsIgnoreCase(word);
+        return targetWord.word().equalsIgnoreCase(word);
     }
 
     private String generateMessage(boolean isFinished, UpdateInfo updateInfo, String word) {
@@ -100,6 +102,7 @@ public final class SimpleWordSession implements Session {
         return generateAttemptsMessage()
             + generateViewMessage()
             + generateUpdateInfoMessage(updateInfo)
+            + generateClueMessage()
             + generateSymbolsMessage(word);
     }
 
@@ -116,12 +119,20 @@ public final class SimpleWordSession implements Session {
         return updateInfo == UpdateInfo.NO_UPDATE ? "" : updateInfo.getInfo() + "\n";
     }
 
+    private String generateClueMessage() {
+        if (numberOfUsedAttempts >= MAX_ATTEMPTS / 2 && targetWord.clue() != null && !targetWord.clue().isBlank()) {
+            return "Clue: " + targetWord.clue() + "\n";
+        } else {
+            return "";
+        }
+    }
+
     private String generateSymbolsMessage(String word) {
         return word + "\n" + convert(incorrectSymbols);
     }
 
     private String generateDefeatMessage() {
-        return "Target word: " + targetWord + periodWithNewLine() + "Defeat!";
+        return "Target word: " + targetWord.word() + periodWithNewLine() + "Defeat!";
     }
 
     @Override
@@ -154,9 +165,9 @@ public final class SimpleWordSession implements Session {
 
         boolean isCorrectSymbol = false;
 
-        int n = targetWord.length();
+        int n = targetWord.word().length();
         for (int i = 0; i < n; i++) {
-            if (upperCaseSymbol == targetWord.charAt(i)) {
+            if (upperCaseSymbol == targetWord.word().charAt(i)) {
                 wordAsSymbols[i] = upperCaseSymbol;
                 isCorrectSymbol = true;
             }

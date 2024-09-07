@@ -1,6 +1,8 @@
-package backend.academy.game.dictionary;
+package backend.academy.game.dictionary.impl;
 
 import backend.academy.game.Level;
+import backend.academy.game.dictionary.Dictionary;
+import backend.academy.game.dictionary.DictionaryWord;
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,103 +44,75 @@ public final class LevelBasedDictionary implements Dictionary {
     }
 
     private static void putEasy(Map<Level, SimpleDictionary> map) {
-        Map<String, List<String>> category2words = new HashMap<>();
+        Map<String, List<DictionaryWord>> category2words = new HashMap<>();
         category2words.put(
             "weather",
             List.of(
-                "fine",
-                "terrible",
-                "cold",
-                "hot",
-                "warm",
-                "rain",
-                "wind",
-                "cloud",
-                "snow"
+                new LevelBasedDictionaryWord("cold", "Low temperature, winter."),
+                new LevelBasedDictionaryWord("hot", "High temperature, summer, spicy food."),
+                new LevelBasedDictionaryWord("warm", "Mild temperature, comfortable, spring day."),
+                new LevelBasedDictionaryWord("rain", "Water droplets that fall from the sky."),
+                new LevelBasedDictionaryWord("wind", "Movement of air")
             )
         );
         category2words.put(
             "appearance",
             List.of(
-                "lips",
-                "teeth",
-                "ears",
-                "forehead",
-                "neck",
-                "body",
-                "arms",
-                "hands",
-                "knees"
+                new LevelBasedDictionaryWord("lips", "Speak, kiss."),
+                new LevelBasedDictionaryWord("teeth", "Food, smile."),
+                new LevelBasedDictionaryWord("ears", "Hearing, two."),
+                new LevelBasedDictionaryWord("forehead", "Hard as a f...d."),
+                new LevelBasedDictionaryWord("neck", "Connects the head to the body.")
             )
         );
         map.put(Level.EASY, new SimpleDictionary(category2words));
     }
 
     private static void putMedium(Map<Level, SimpleDictionary> map) {
-        Map<String, List<String>> category2words = new HashMap<>();
+        Map<String, List<DictionaryWord>> category2words = new HashMap<>();
         category2words.put(
             "food",
             List.of(
-                "omelette",
-                "sausages",
-                "boil",
-                "fry",
-                "cocoa",
-                "letice",
-                "wine",
-                "dessert",
-                "cream",
-                "buckwheat"
+                new LevelBasedDictionaryWord("omelette", "Dish made from beaten eggs."),
+                new LevelBasedDictionaryWord("sausages", "Dog from multiplication \"Hunting season\"."),
+                new LevelBasedDictionaryWord("fry", "Cooking method that involves cooking food in hot oil."),
+                new LevelBasedDictionaryWord("cocoa", "Powder made from roasted cocoa beans."),
+                new LevelBasedDictionaryWord("wine", "Alcoholic drink made from grapes.")
             )
         );
         category2words.put(
             "character",
             List.of(
-                "understanding",
-                "obedient",
-                "generous",
-                "cheerful",
-                "careful",
-                "careless",
-                "selfish",
-                "ambitious",
-                "calm",
-                "cruel"
+                new LevelBasedDictionaryWord("careful", "Showing caution and attention to detail."),
+                new LevelBasedDictionaryWord("careless", "Not giving sufficient attention or thought."),
+                new LevelBasedDictionaryWord("ambitious", "Having a strong desire to achieve success."),
+                new LevelBasedDictionaryWord("calm", "State of tranquility or peace."),
+                new LevelBasedDictionaryWord("cruel", "Characterized by a lack of kindness or compassion.")
             )
         );
         map.put(Level.MEDIUM, new SimpleDictionary(category2words));
     }
 
     private static void putHard(Map<Level, SimpleDictionary> map) {
-        Map<String, List<String>> category2words = new HashMap<>();
+        Map<String, List<DictionaryWord>> category2words = new HashMap<>();
         category2words.put(
             "culture",
             List.of(
-                "affect",
-                "arrange",
-                "discord",
-                "gasp",
-                "greed",
-                "masterpiece",
-                "piece",
-                "poverty",
-                "shadow",
-                "sheer"
+                new LevelBasedDictionaryWord("affect", "To have an influence on."),
+                new LevelBasedDictionaryWord("greed", "Desire for wealth; often depicted as a vice in fables."),
+                new LevelBasedDictionaryWord("piece", "Part of a whole."),
+                new LevelBasedDictionaryWord("shadow", "Dark."),
+                new LevelBasedDictionaryWord("sheer", "Often used to describe something very steep.")
             )
         );
         category2words.put(
             "politics",
             List.of(
-                "opponent",
-                "opposition",
-                "corruption",
-                "liberal",
-                "communist",
-                "labour",
-                "conservative",
-                "politician",
-                "person",
-                "election"
+                new LevelBasedDictionaryWord("opponent", "Person who competes against another in a election, debate."),
+                new LevelBasedDictionaryWord("opposition", "Party that disagrees with the current government."),
+                new LevelBasedDictionaryWord("corruption", "Abuse of power for personal gain."),
+                new LevelBasedDictionaryWord("conservative", "Tradition, limited government, free markets."),
+                new LevelBasedDictionaryWord("election", "Formal decision-making process.")
             )
         );
         map.put(Level.HARD, new SimpleDictionary(category2words));
@@ -191,27 +165,27 @@ public final class LevelBasedDictionary implements Dictionary {
     }
 
     @Override
-    public Optional<String> getWord(Level level, String category) {
+    public Optional<DictionaryWord> getDictionaryWord(Level level, String category) {
         SimpleDictionary simpleDictionary = level2simpleDictionary.get(level);
         if (simpleDictionary == null) {
             return Optional.empty();
         }
 
-        return simpleDictionary.getWord(secureRandom, category);
+        return simpleDictionary.getDictionaryWord(secureRandom, category);
     }
 
     @Override
-    public String getDefaultWord() {
-        return getWord(getDefaultLevel(), getDefaultCategory()).orElseThrow();
+    public DictionaryWord getDefaultDictionaryWord() {
+        return getDictionaryWord(getDefaultLevel(), getDefaultCategory()).orElseThrow();
     }
 
-    private record SimpleDictionary(Map<String, List<String>> category2words) {
+    private record SimpleDictionary(Map<String, List<DictionaryWord>> category2words) {
         public Set<String> getCategories() {
             return category2words.keySet();
         }
 
-        public Optional<String> getWord(SecureRandom secureRandom, String category) {
-            List<String> words = category2words.get(category);
+        public Optional<DictionaryWord> getDictionaryWord(SecureRandom secureRandom, String category) {
+            List<DictionaryWord> words = category2words.get(category);
             if (words == null || words.isEmpty()) {
                 return Optional.empty();
             }
