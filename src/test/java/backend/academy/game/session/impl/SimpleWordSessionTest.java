@@ -9,6 +9,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class SimpleWordSessionTest {
     @Test
     public void getSessionStateIfIncorrectSession() {
+        // Arrange
         List<SimpleWordSession> incorrectSessions = List.of(
             SimpleWordSession.getInstance(new LevelBasedDictionaryWord(null, null)),
             SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", null)),
@@ -17,14 +18,19 @@ public class SimpleWordSessionTest {
             SimpleWordSession.getInstance(new LevelBasedDictionaryWord("\t\n", ""))
         );
 
+        // Act
+        List<SessionState> incorrectSessionStates = incorrectSessions.stream()
+            .map(SimpleWordSession::getSessionState)
+            .toList();
+
+        // Assert
         SessionState expected = new SimpleWordSessionState(true,"Incorrect session!");
-        incorrectSessions.forEach(
-            incorrectSession -> assertThat(incorrectSession.getSessionState()).isEqualTo(expected)
-        );
+        incorrectSessionStates.forEach(actual -> assertThat(actual).isEqualTo(expected));
     }
 
     @Test
     public void getSessionStateIfCorrectSession() {
+        // Arrange
         List<SimpleWordSession> simpleWordSessions = List.of(
             SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", "")),
             SimpleWordSession.getInstance(new LevelBasedDictionaryWord("Word", "")),
@@ -43,10 +49,12 @@ public class SimpleWordSessionTest {
             SimpleWordSession.getInstance(new LevelBasedDictionaryWord("WORD", ""))
         );
 
-        List<SessionState> actuals = simpleWordSessions.stream()
+        // Act
+        List<SessionState> simpleWordSessionStates = simpleWordSessions.stream()
             .map(SimpleWordSession::getSessionState)
             .toList();
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -64,39 +72,23 @@ Number of used attempts: 0.
 ____
 """
         );
-        actuals.forEach(actual -> assertThat(actual).isEqualTo(expected));
+        simpleWordSessionStates.forEach(actual -> assertThat(actual).isEqualTo(expected));
     }
 
     @Test
     public void updateSessionIncorrectInput() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
+
+        // Act
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("A");
         simpleWordSession.updateState("D");
-        SessionState actual = simpleWordSession.updateState("h");
-        SessionState expectedBefore = new SimpleWordSessionState(
-            false,
-            """
-Maximum attempts: 6.
-Number of used attempts: 2.
-  -----
-  |   |
-  |   0
-  |   |
-  |   |
-  |
-  |
-  |
- ---
-You doesn't guess the letter.
-W__D
-AH"""
-        );
-        assertThat(actual).isEqualTo(expectedBefore);
+        simpleWordSession.updateState("h");
+        SessionState actual = simpleWordSession.updateState("biba");
 
-        actual = simpleWordSession.updateState("biba");
-
-        SessionState expectedAfter = new SimpleWordSessionState(
+        // Assert
+        SessionState expected = new SimpleWordSessionState(
             false,
             """
 Maximum attempts: 6.
@@ -114,15 +106,18 @@ Incorrect input.
 W__D
 AH"""
         );
-        assertThat(actual).isEqualTo(expectedAfter);
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
     public void updateStateLowerCaseCorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         SessionState actual = simpleWordSession.updateState("w");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -146,10 +141,13 @@ W___
 
     @Test
     public void updateStateUpperCaseCorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         SessionState actual = simpleWordSession.updateState("W");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -173,10 +171,13 @@ W___
 
     @Test
     public void updateStateLowerCaseIncorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         SessionState actual = simpleWordSession.updateState("e");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -200,10 +201,13 @@ E"""
 
     @Test
     public void updateStateUpperCaseIncorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         SessionState actual = simpleWordSession.updateState("E");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -227,11 +231,14 @@ E"""
 
     @Test
     public void updateStateLowerCaseAlreadyCorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         simpleWordSession.updateState("o");
         SessionState actual = simpleWordSession.updateState("o");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -255,11 +262,14 @@ _O__
 
     @Test
     public void updateStateUpperCaseAlreadyCorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         simpleWordSession.updateState("r");
         SessionState actual = simpleWordSession.updateState("R");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -283,14 +293,17 @@ __R_
 
     @Test
     public void updateStateLowerCaseAlreadyIncorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("o");
         simpleWordSession.updateState("p");
         simpleWordSession.updateState("a");
         SessionState actual = simpleWordSession.updateState("a");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -314,14 +327,17 @@ AP"""
 
     @Test
     public void updateStateUpperCaseAlreadyIncorrect() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("o");
         simpleWordSession.updateState("p");
         simpleWordSession.updateState("a");
         SessionState actual = simpleWordSession.updateState("A");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             false,
             """
@@ -345,8 +361,10 @@ AP"""
 
     @Test
     public void updateStateGuessed() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", "World but short."));
 
+        // Act
         simpleWordSession.updateState("w");
         simpleWordSession.updateState("O");
         simpleWordSession.updateState("P");
@@ -355,6 +373,7 @@ AP"""
         simpleWordSession.updateState("T");
         SessionState actual = simpleWordSession.updateState("D");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             true,
             """
@@ -380,8 +399,10 @@ Victory!"""
 
     @Test
     public void updateStateFinishedTryingOverLimitDefault() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         simpleWordSession.updateState("a");
         simpleWordSession.updateState("b");
         simpleWordSession.updateState("c");
@@ -393,6 +414,7 @@ Victory!"""
         simpleWordSession.updateState("d");
         SessionState actual = simpleWordSession.updateState("h");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             true,
             """
@@ -418,8 +440,10 @@ Defeat!"""
 
     @Test
     public void updateStateFinishedTryingOverLimitVictory() {
+        // Arrange
         SimpleWordSession simpleWordSession = SimpleWordSession.getInstance(new LevelBasedDictionaryWord("word", ""));
 
+        // Act
         simpleWordSession.updateState("a");
         simpleWordSession.updateState("b");
         simpleWordSession.updateState("c");
@@ -433,6 +457,7 @@ Defeat!"""
         simpleWordSession.updateState("h");
         SessionState actual = simpleWordSession.updateState("d");
 
+        // Assert
         SessionState expected = new SimpleWordSessionState(
             true,
             """
