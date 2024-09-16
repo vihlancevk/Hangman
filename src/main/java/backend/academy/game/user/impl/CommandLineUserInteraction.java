@@ -48,12 +48,12 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
         if (optionalLevel.isPresent()) {
             Level level = optionalLevel.orElseThrow();
-            println("You choose " + level + " level.");
+            println(String.format("You choose %s level.", level));
             return level;
         } else {
             reportWarning();
             Level level = dictionary.getDefaultLevel();
-            println("The default game level is used: " + level + ".");
+            println(String.format("The default game level is used: %s.", level));
             return level;
         }
     }
@@ -66,7 +66,7 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
         String category = nextLineInLowerCase();
         if (categories.contains(category)) {
-            println("You choose category: " + category + ".");
+            println(String.format("You choose category: %s.", categories));
             return category;
         } else {
             reportWarning();
@@ -74,7 +74,7 @@ public final class CommandLineUserInteraction implements UserInteraction {
             String chosenCategory = optionalCategory.isPresent()
                 ? optionalCategory.orElseThrow()
                 : dictionary.getDefaultCategory();
-            println("We choose category for you: " + chosenCategory + ".");
+            println(String.format("We choose category for you: %s.", chosenCategory));
             return chosenCategory;
         }
     }
@@ -142,7 +142,7 @@ public final class CommandLineUserInteraction implements UserInteraction {
     }
 
     private void println(String string) {
-        print(string + "\n");
+        print(String.format("%s%n", string));
     }
 
     private void print(String string) {

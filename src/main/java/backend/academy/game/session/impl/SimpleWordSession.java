@@ -10,7 +10,6 @@ import java.util.TreeSet;
 import static backend.academy.game.session.SimpleWordSessionUtils.convert;
 import static backend.academy.game.session.SimpleWordSessionUtils.isCorrectWord;
 import static backend.academy.game.session.SimpleWordSessionUtils.isSymbol;
-import static backend.academy.game.session.SimpleWordSessionUtils.periodWithNewLine;
 import static backend.academy.game.session.SimpleWordSessionUtils.toUpperCase;
 
 public final class SimpleWordSession implements Session {
@@ -107,32 +106,37 @@ public final class SimpleWordSession implements Session {
     }
 
     private String generateAttemptsMessage() {
-        return "Maximum attempts: " + MAX_ATTEMPTS + periodWithNewLine()
-            + "Number of used attempts: " + numberOfUsedAttempts + periodWithNewLine();
+        return String.format(
+            "Maximum attempts: %d.%nNumber of used attempts: %d.%n", MAX_ATTEMPTS, numberOfUsedAttempts
+        );
     }
 
     private String generateViewMessage() {
-        return views[numberOfUsedAttempts] + "\n";
+        return generateNameWithNewLine(views[numberOfUsedAttempts]);
     }
 
     private String generateUpdateInfoMessage(UpdateInfo updateInfo) {
-        return updateInfo == UpdateInfo.NO_UPDATE ? "" : updateInfo.getInfo() + "\n";
+        return updateInfo == UpdateInfo.NO_UPDATE ? "" : generateNameWithNewLine(updateInfo.getInfo());
+    }
+
+    private String generateNameWithNewLine(String message) {
+        return String.format("%s%n", message);
     }
 
     private String generateClueMessage() {
         if (numberOfUsedAttempts >= MAX_ATTEMPTS / 2 && targetWord.clue() != null && !targetWord.clue().isBlank()) {
-            return "Clue: " + targetWord.clue() + "\n";
+            return String.format("Clue: %s%n", targetWord.clue());
         } else {
             return "";
         }
     }
 
     private String generateSymbolsMessage(String word) {
-        return word + "\n" + convert(incorrectSymbols);
+        return String.format("%s%n%s", word, convert(incorrectSymbols));
     }
 
     private String generateDefeatMessage() {
-        return "Target word: " + targetWord.word() + periodWithNewLine() + "Defeat!";
+        return String.format("Target word: %s.%nDefeat!", targetWord.word());
     }
 
     @Override

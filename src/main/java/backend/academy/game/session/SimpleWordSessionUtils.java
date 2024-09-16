@@ -64,8 +64,4 @@ public final class SimpleWordSessionUtils {
     public static boolean isSymbol(String symbol) {
         return symbol.length() == 1 && Character.isLetter(symbol.charAt(0));
     }
-
-    public static String periodWithNewLine() {
-        return ".\n";
-    }
 }
