@@ -66,7 +66,7 @@ public final class CommandLineUserInteraction implements UserInteraction {
 
         String category = nextLineInLowerCase();
         if (categories.contains(category)) {
-            println(String.format("You choose category: %s.", categories));
+            println(String.format("You choose category: %s.", category));
             return category;
         } else {
             reportWarning();
